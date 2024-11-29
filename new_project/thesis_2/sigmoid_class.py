@@ -112,7 +112,7 @@ class Sigmoid():
         # Create a range of x values
         x = np.linspace(-4, 4, 400)
         # Plot the step function with slopes adjusted
-        # y = step_function(x)
+        y = step_function(x)
 
 
         plt.figure(dpi=150)
