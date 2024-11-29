@@ -5,8 +5,8 @@ import scipy.io
 
 
 class Quantificatioin():
-    def __init__(self, op: np.ndarray, s: np.ndarray, w=6) -> None:
-        self.op = op
+    def __init__(self, co: np.ndarray, s: np.ndarray, w=6) -> None:
+        self.op = co
         self.s = s
         self.w = w
     def perform(self):

@@ -25,7 +25,7 @@ for loop_name in loop_array:
     pv = loop['PV'] # shape (1000, )
     op = loop['OP'] # shape (1000, )
 
-    sigmoid = Sigmoid(op=op, pv=pv)
+    sigmoid = Sigmoid(co=op, pv=pv)
     # sigmoid.delta_pv_op_plot(name= loop_name)
 
     #Stiction detect

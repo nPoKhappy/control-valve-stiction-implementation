@@ -12,8 +12,8 @@ def step_function(x):
                          lambda x: np.clip(0.15 * x + 0.7, 0, 1)])  # right side
 
 class Sigmoid():
-    def __init__(self, op: np.ndarray, pv: np.ndarray) -> None:
-        self.op = op
+    def __init__(self, co: np.ndarray, pv: np.ndarray) -> None:
+        self.co = co
         self.pv = pv
         self.pv_scale = None
         self.op_scale = None
@@ -45,7 +45,7 @@ class Sigmoid():
     # Main function for detecting stiction
     def detect_stiction(self, r_threshold=0.5) -> Union[bool, float]: 
         # flatten array from 2d -> 1d
-        op = self.op.flatten()
+        op = self.co.flatten()
         pv = self.pv.flatten() 
         # First step：calculate ΔPV（first order difference backward of PV）
         delta_pv = np.diff(pv, prepend=pv[0]) # Prepend to make sure the shape of diff_pv is the same as op
@@ -97,7 +97,7 @@ class Sigmoid():
     def delta_pv_op_plot(self, name: str, filename: str) -> None:
         """delta pv v.s op plot"""
         # flatten array from 2d -> 1d
-        op = self.op.flatten()
+        op = self.co.flatten()
         pv = self.pv.flatten() 
 
 
@@ -112,7 +112,7 @@ class Sigmoid():
         # Create a range of x values
         x = np.linspace(-4, 4, 400)
         # Plot the step function with slopes adjusted
-        y = step_function(x)
+        # y = step_function(x)
 
 
         plt.figure(dpi=150)

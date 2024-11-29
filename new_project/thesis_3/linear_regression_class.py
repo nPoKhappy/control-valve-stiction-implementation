@@ -3,9 +3,9 @@ import matplotlib.pyplot as plt
 
 
 class Linear_Rregression():
-    def __init__(self, pv: np.ndarray, op: np.ndarray, t: np.ndarray,draw_log_plot: bool, w=6, n=15) -> None:
+    def __init__(self, pv: np.ndarray, co: np.ndarray, t: np.ndarray,draw_log_plot: bool, w=6, n=15) -> None:
         self.pv = pv.flatten()
-        self.op = op.flatten()
+        self.op = co.flatten()
         self.t = t.flatten()
         self.w = w
         self.n = n

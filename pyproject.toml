@@ -1,6 +1,6 @@
 [tool.poetry]
-name = "new-project"
-version = "0.1.0"
+name = "undergraduate_project"
+version = "1.0.0"
 description = ""
 authors = ["Your Name <jj612121@gmail.com>"]
 readme = "README.md"
@@ -11,6 +11,7 @@ numpy = "1.26.4"
 scikit-learn = "^1.2.2"
 matplotlib = "3.8.0"
 pillow = "^11.0.0"
+pandas = "^2.2.3"
 
 
 [build-system]

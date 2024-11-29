@@ -28,7 +28,7 @@ op_loop = loop['OP']
 # pv_loop = pv_loop[:sliced_sample_num]
 # op_loop = op_loop[:sliced_sample_num]
 
-def plot_pv_sp_op( pv: np.ndarray, sp: np.ndarray, op: np.ndarray, loop_name : str) -> None:
+def plot_pv_sp_op( pv: np.ndarray, sp: np.ndarray, co: np.ndarray, loop_name : str) -> None:
     # Time axis (assuming time is in sequence and matches the length of your data)
     samples = range(len(pv))
 
@@ -37,7 +37,10 @@ def plot_pv_sp_op( pv: np.ndarray, sp: np.ndarray, op: np.ndarray, loop_name : s
 
     # Subplot 1: Setpoint (SP) and Process Variable (PV)
     plt.subplot(2, 1, 1)
-    plt.plot(samples, sp, label="Setpoint")
+    
+    if sp != None:
+        plt.plot(samples, sp, label="Setpoint")
+    
     plt.plot(samples, pv, label="Process variable", color='r')
     plt.xlabel("samples")
     plt.legend()
@@ -47,7 +50,7 @@ def plot_pv_sp_op( pv: np.ndarray, sp: np.ndarray, op: np.ndarray, loop_name : s
 
     # # Subplot 2: Controller Output (OP)
     plt.subplot(2, 1, 2)
-    plt.plot(samples, op, label="Controller output")
+    plt.plot(samples, co, label="Controller output")
     plt.xlabel("samples")
     plt.ylabel("Value")
     plt.legend()

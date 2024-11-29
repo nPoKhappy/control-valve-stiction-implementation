@@ -16,7 +16,7 @@ def create_gif(chemical_data, loop_list, gif_name):
         
         # Generate the plot and save as image
         img_filename = f"loop_{loop_name}.png"
-        sigmoid = Sigmoid(op=op, pv=pv)
+        sigmoid = Sigmoid(co=op, pv=pv)
         sigmoid.delta_pv_op_plot(name=str(loop_name), filename=img_filename)
         image_files.append(img_filename)
 
