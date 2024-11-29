@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "new-project"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <jj612121@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11.9"
+numpy = "1.26.4"
+scikit-learn = "^1.2.2"
+matplotlib = "3.8.0"
+pillow = "^11.0.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
