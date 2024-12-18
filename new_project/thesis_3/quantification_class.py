@@ -6,6 +6,10 @@ import scipy.io
 
 class Quantificatioin():
     def __init__(self, co: np.ndarray, s: np.ndarray, w=6) -> None:
+        """
+        CO : controller output 
+        s : stiction (size : CO.size / window.size )
+        """
         self.op = co
         self.s = s
         self.w = w
@@ -19,19 +23,20 @@ class Quantificatioin():
             if i == 0:
                 # Handle first window separately
                 if self.s[i] > 0:  # Valve is sticky in the first window
-                    k = 1
+                    k = 1 # k = 1 It shows that there is a stick happen
+                    # Extend (add multiple elements to a list at once)
                     d.extend(self.op[0:self.w])  # Add OP values from the first window to 'd'
                 else:
                     k = 0
                     d = []  # No stiction, 'd' remains empty
             else:
-                if k == 1 and self.s[i] > 0:  # Valve is still sticky
+                if k == 1 and self.s[i] > 0:  # Valve is sticky and now valve is still sticky
                     k = 1
-                    d.extend(self.op[(i) * self.w:(i + 1) * self.w])  # Continue adding OP values
+                    d.extend(self.op[(i) * self.w:(i + 1) * self.w])  #  Add OP values of the current window
                 elif k == 1 and self.s[i] == 0:  # Valve just overcame stiction
                     k = 0
                     if d:  # Ensure 'd' is not empty before calculating stiction band
-                        stic_band.append(abs(d[0] - d[-1]))
+                        stic_band.append(abs(d[0] - d[-1])) 
                     else:
                         raise ValueError(f"the iteration {i} d is empty.")
                     d = []  # Reset 'd' for the next potential sticky phase
