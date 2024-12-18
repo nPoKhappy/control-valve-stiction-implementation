@@ -14,7 +14,7 @@ np.random.seed(30)
 
 
 class Svr():
-    def __init__(self, file_name : str, data_col : list[set[str]], c_start: float, c_end: float, 
+    def __init__(self, file_name : str, data_col : list[list[str]], c_start: float, c_end: float, 
                  epsilon_start: float, epsilon_end: float) -> None:
         self.data_col = np.array(data_col)
         self.df = self._load_data(file_name)
@@ -23,11 +23,10 @@ class Svr():
         self.epsilon_s = epsilon_start
         self.epsilon_e = epsilon_end
     # when instance the class all the file would be loaded
-    def _load_data(self, file_name : str):
+    def _load_data(self, file_path : str):
         # Load data 
         # Load the xlsx file
-        file_path = f"new_project/{file_name}"  
-        df = pd.read_csv(file_path, header = 1, engine = "openpyxl") # Header set to 1 for header in the second row and engine 
+        df = pd.read_excel(file_path, header = 1, engine="openpyxl") # Header set to 1 for header in the second row and engine 
                                                                     # is to make sure compatibility with .xlsx files.
                                                                     # need to install openpyxl
         return df
@@ -55,7 +54,7 @@ class Svr():
             y_train.append(r_value)
 
     # Main algorithm
-    def train_valid(self, store: bool)-> None:
+    def train_valid(self, store: bool, store_path : str)-> None:
         # Create list for store epsilon, c, validatioin mse
         # Create y_train(r_val) and prediction(pred r_val) for all the loop 
         self.epsilon_list, self.valid_mean_squared_error, self.c_list = [], [], []
@@ -76,27 +75,24 @@ class Svr():
                 # Loop each control loop
                 # pv_col is the column where the PV at and co_col is the column where the CO at 
                 for inner_list in self.data_col:
-                    for i, element in enumerate(inner_list):
-                        if i == 0:
-                            pv = self.df[element].to_numpy().flatten() # shape (samples num, )
-                        elif i == 1:
-                            op = self.df[element].to_numpy().flatten() # shape (samples num, )
-                        
-                        pv_train, op_train, pv_valid, op_valid, _, _ = train_test_split(pv = pv, op = op, valid_size = 0.1, test_size = 0.2)
-                        
-                        #*Process testing Data
-                        # Parameters
-                        window_size = 60  # Size of each window
-                        num_samples = pv_train.size  
-                        num_windows = num_samples // window_size  # Number of windows
+                    pv = self.df[inner_list[0]].to_numpy().flatten()  # Access first element
+                    op = self.df[inner_list[1]].to_numpy().flatten()  # Access second element
+                    
+                    pv_train, op_train, pv_valid, op_valid, _, _ = train_test_split(pv = pv, op = op, valid_size = 0.1, test_size = 0.2)
+                    
+                    #*Process testing Data
+                    # Parameters
+                    window_size = 60  # Size of each window
+                    num_samples = pv_train.size  
+                    num_windows = num_samples // window_size  # Number of windows
 
-                        self._short_for_loop(num_windows, window_size, pv_train, op_train, X_train, y_train)
+                    self._short_for_loop(num_windows, window_size, pv_train, op_train, X_train, y_train)
 
-                        #* Process Validation Data
-                        num_samples_valid = pv_valid.size
-                        num_windows_valid = num_samples_valid // window_size  # Number of windows
+                    #* Process Validation Data
+                    num_samples_valid = pv_valid.size
+                    num_windows_valid = num_samples_valid // window_size  # Number of windows
 
-                        self._short_for_loop(num_windows_valid, window_size, pv_valid, op_valid, X_valid, y_valid)
+                    self._short_for_loop(num_windows_valid, window_size, pv_valid, op_valid, X_valid, y_valid)
 
                 """training the model"""
                 X_train = np.array(X_train)
@@ -129,9 +125,13 @@ class Svr():
                 
                 # Save the model or not
                 if store == 1:
-                    joblib.dump(svr_model, 'new_project/csv/final/svr_model/svr_model_best.pkl')
+                    joblib.dump(svr_model, store_path)
     
     def draw_validation_mse(self, show: bool)->None:
+        """
+        Plotting 3d surf with x-axis epsilon hyperparameter, y axis c hyperparameter
+        show : bool whether to print the epsilon array and c if or not
+        """
         # Store as csv
         epsilon_array = np.array(self.epsilon_list)
         c_array = np.array(self.c_list)
@@ -165,8 +165,10 @@ class Svr():
         ax.set_title("3D Plot of MSE varying with C and Epsilon")
         plt.show()
         
-    # Draw train and valid actual r_val and pred r_val
     def draw_r_val(self):
+        """
+        Draw train and valid actual r_val and pred r_val
+        """
         # Convert list into array
         self.y_train_all = np.array(self.y_train_all)
         self.y_valid_all = np.array(self.y_valid_all)
