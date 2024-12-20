@@ -42,6 +42,9 @@ class Svr():
             # Every x steps take a sample to from a input data
             pv_window = aggregate_points(pv_window)
             op_window = aggregate_points(op_window)
+            # If controller output didnt cahnge in the time window, we continue to next window
+            if (np.max(op_window) - np.min(op_window) == 0 or np.std(np.diff(pv_window, prepend=pv_window[0])) == 0): 
+                continue
             # Detect stiction and get r_value for this window
             sigmoid = Sigmoid(co=op_window, pv=pv_window)
             _, r_value = sigmoid.detect_stiction()

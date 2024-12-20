@@ -1,5 +1,5 @@
 from new_project.final.svr_class_new import Svr
-
+from new_project.thesis_1.plot import plot_pv_sp_op
 
 file_path : str = "new_project/CVOP_20220201~0430.xlsx" # The excel file name
 
@@ -12,8 +12,8 @@ print(f"There are {len(data_cols)} control loop data.")
 
 svr  = Svr(file_name = file_path, 
           data_col = data_cols, 
-          c_start = 0.01, c_end = 1.5,
-          epsilon_start = 0.0, epsilon_end = 0.3)
+          c_start = 1.0, c_end = 1.15,
+          epsilon_start = 0.1, epsilon_end = 0.15)
 
 svr.train_valid(store = 1, store_path = "new_project/csv/final/svr_model/CVOP_20220201~0430.pkl")
 # svr.draw_validation_mse(show = 1)

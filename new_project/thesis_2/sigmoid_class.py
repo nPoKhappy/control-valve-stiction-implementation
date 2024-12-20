@@ -22,7 +22,7 @@ class Sigmoid():
     def _sigmoid(self, x: np.ndarray, a: float, b: float) -> np.ndarray:
         # Prevent overflow(the parameter a or b pass into this function being too large)
         z = a * x + b
-        z = np.clip(z, -5000, 5000)
+        z = np.clip(z, -500, 500)
 
         return 1 / (1 + np.exp(-z))
     def _modified_step_function(self, x: np.ndarray, s_a: float, s_b: float, a: float, b: float) -> np.ndarray:
@@ -40,20 +40,32 @@ class Sigmoid():
         Pearson correlation coefficient
         pho_x_y = cov(x, y) / sigma_x * sigma_y
         """
+        if np.all(y == y[0]):
+            raise ValueError("Array 'y' is constant; correlation coefficient is not defined.")
+        if np.all(y_fit == y_fit[0]):
+            print(f"y_fit : {y_fit}")
+            print(f"y : {y}")
+            raise ValueError("Array 'y_fit' is constant; correlation coefficient is not defined.")
+        
         return pearsonr(y, y_fit)[0] # The first element from result is the statistic and the sec one is p_value
 
     # Main function for detecting stiction
     def detect_stiction(self, r_threshold=0.5) -> Union[bool, float]: 
         # flatten array from 2d -> 1d
-        op = self.co.flatten()
-        pv = self.pv.flatten() 
+        op = self.co
+        pv = self.pv
         # First step：calculate ΔPV（first order difference backward of PV）
         delta_pv = np.diff(pv, prepend=pv[0]) # Prepend to make sure the shape of diff_pv is the same as op
                                             # Add pv[0] to let delta_pv first element become 0
         mean_pv = np.mean(delta_pv)
         std_pv = np.std(delta_pv)
         pv_normalized = (delta_pv - mean_pv) / std_pv
-        
+        # Make op to [0, 1]
+        op_range = np.max(op) - np.min(op)
+        op_norm = (op - np.min(op)) / op_range
+        # Assign to variable
+        self.pv_scale = pv_normalized
+        self.op_scale = op_norm
         # Second step：fit Sigmoid function to ΔPV and OP
         """
         xdata is the independent variable want to fit in
@@ -64,23 +76,17 @@ class Sigmoid():
         """
         # Residuals function for least_squares (difference between predicted and observed data)
         def residuals(params, x, y):
-            s_a, s_b, a, b = params
-            return self._modified_step_function(x, s_a, s_b, a, b) - y
-        # Make op to [0, 1]
-        op_norm = (op - np.min(op)) / (np.max(op) - np.min(op)) 
-        
-        # Assign to variable
-        self.pv_scale = pv_normalized
-        self.op_scale = op_norm
+            a, b = params
+            return self._sigmoid(x, a, b) - y
         # Initial guess for the parameters [a, b]
-        initial_guess = [1, 1, 0.1, 0.1]
+        initial_guess = [1, 0]
         # Use least_squares to fit the sigmoid curve
         result = least_squares(residuals, initial_guess, args=(pv_normalized, op_norm), method='trf')
         # Extract fitted parameters
-        s_a_fitted, s_b_fitted, a_fitted, b_fitted = result.x
+        a_fitted, b_fitted = result.x
         # print(f"para s_a : {s_a_fitted}, s_b : {s_b_fitted}, a : {a_fitted} and b : {b_fitted}\n")
         # Compute the fitted y values
-        y_fit = self._modified_step_function(pv_normalized, s_a_fitted,s_b_fitted, a_fitted, b_fitted)
+        y_fit = self._sigmoid(pv_normalized, a_fitted, b_fitted)
         # Third step: calculate the correlation coefficient
         r_value = self._calculate_correlation_coefficient(op_norm, y_fit)
         # Round to dicimal 2
