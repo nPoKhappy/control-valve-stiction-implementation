@@ -20,18 +20,18 @@ np.random.seed(30)
 class Svr():
     def __init__(self, file_name : str, data_col : list[list[str]], c_start: float, c_end: float, 
                  epsilon_start: float, epsilon_end: float) -> None:
-        self.data_col = np.array(data_col)
-        self.df = self._load_data(file_name)
-        self.c_s = c_start
-        self.c_e = c_end
-        self.epsilon_s = epsilon_start
-        self.epsilon_e = epsilon_end
-        self.data_retrieve_from_each = []
+        self.data_col : np.ndarray = np.array(data_col)
+        self.df : pd.DataFrame= self._load_data(file_name)
+        self.c_s : float= c_start
+        self.c_e : float= c_end
+        self.epsilon_s : float= epsilon_start
+        self.epsilon_e : float = epsilon_end
+        self.data_retrieve_from_each : list = []
     # when instance the class all the file would be loaded
-    def _load_data(self, file_path : str):
+    def _load_data(self, file_path : str) -> pd.DataFrame:
         # Load data 
         # Load the xlsx file
-        df = pd.read_excel(file_path, header = 1, engine="openpyxl") # Header set to 1 for header in the second row and engine 
+        df : pd.DataFrame = pd.read_excel(file_path, header = 1, engine="openpyxl") # Header set to 1 for header in the second row and engine 
                                                                     # is to make sure compatibility with .xlsx files.
                                                                     # need to install openpyxl
         return df
@@ -40,31 +40,31 @@ class Svr():
     def _short_for_loop(self, num_windows: int, window_size: int, pv_train: np.ndarray, op_train: np.ndarray, 
                         X_train: list, y_train: list)-> None:
         # First step：calculate ΔPV（first order difference backward of PV）
-        delta_pv = np.diff(pv_train, prepend = pv_train[0]) # Prepend to make sure the shape of diff_pv is the same as op
+        delta_pv : np.ndarray = np.diff(pv_train, prepend = pv_train[0]) # Prepend to make sure the shape of diff_pv is the same as op
                                             # Add pv[0] to let delta_pv first element become 0
-        mean_pv = np.mean(delta_pv)
-        std_pv = np.std(delta_pv)
-        pv_normalized = (delta_pv - mean_pv) / std_pv
+        mean_pv : float= np.mean(delta_pv)
+        std_pv : float = np.std(delta_pv)
+        pv_normalized : np.ndarray = (delta_pv - mean_pv) / std_pv
         # Make op to [0, 1]
-        op_range = np.max(op_train) - np.min(op_train)
-        op_norm = (op_train - np.min(op_train)) / op_range
+        op_range : float = np.max(op_train) - np.min(op_train)
+        op_norm : np.ndarray = (op_train - np.min(op_train)) / op_range
         # Loop through the data to create windows of 60 samples
         for i in range(num_windows):
             # Extract a window of 60 samples from both PV and OP
-            pv_window = pv_normalized[i*window_size:(i+1)*window_size]
-            op_window = op_norm[i*window_size:(i+1)*window_size]
+            pv_window : np.ndarray = pv_normalized[i*window_size:(i+1)*window_size]
+            op_window : np.ndarray = op_norm[i*window_size:(i+1)*window_size]
             # Every x steps take a sample to from a input data
-            pv_window = aggregate_points(pv_window)
-            op_window = aggregate_points(op_window)
+            pv_window : np.ndarray = aggregate_points(pv_window)
+            op_window : np.ndarray = aggregate_points(op_window)
             # If controller output didnt cahnge in the time window, we continue to next window
             if (np.max(op_window) - np.min(op_window) == 0): 
                 continue
             # Detect stiction and get r_value for this window
-            sigmoid = Sigmoid(op = op_window, pv = pv_window)
+            sigmoid : Sigmoid = Sigmoid(op = op_window, pv = pv_window)
             _, r_value = sigmoid.detect_stiction()
 
             # Concatenate PV and OP window into a single input vector of size 40
-            input_vector = np.concatenate((sigmoid.pv, sigmoid.op))  # (20, ) + (20, ) = (40, )
+            input_vector  : np.ndarray = np.concatenate((sigmoid.pv, sigmoid.op))  # (20, ) + (20, ) = (40, )
             
             # Store the input vector and target r_value
             X_train.append(input_vector)
@@ -85,7 +85,7 @@ class Svr():
                 # Print now the loop is going 
                 print(f"c and episolon: {c:.2f} and {epsilon:.2f}")
                 # Model construction
-                svr_model = SVR(kernel='rbf', C = c, epsilon=epsilon)
+                svr_model : SVR = SVR(kernel='rbf', C = c, epsilon=epsilon)
 
                 # Initialize arrays to store the input vectors and target values
                 X_train, y_train = [], []
@@ -93,30 +93,30 @@ class Svr():
                 # Loop each control loop
                 # pv_col is the column where the PV at and co_col is the column where the CO at 
                 for inner_list in self.data_col:
-                    pv = self.df[inner_list[0]].to_numpy().flatten()  # Access first element
-                    op = self.df[inner_list[1]].to_numpy().flatten()  # Access second element
+                    pv : np.ndarray = self.df[inner_list[0]].to_numpy().flatten()  # Access first element
+                    op : np.ndarray = self.df[inner_list[1]].to_numpy().flatten()  # Access second element
                     # In order to show which data col we use to take data from 
-                    self.data_col_pv = inner_list[0]
+                    self.data_col_pv : str = inner_list[0]
                     
                     pv_train, op_train, pv_valid, op_valid, _, _ = train_test_split(pv = pv, op = op, valid_size = 0.1, test_size = 0.2)
                     
                     #*Process testing Data
                     # Parameters
-                    window_size = 60  # Size of each window
-                    num_samples = pv_train.size  
-                    num_windows = num_samples // window_size  # Number of windows
+                    window_size : int = 60  # Size of each window
+                    num_samples : int = pv_train.size  
+                    num_windows : int = num_samples // window_size  # Number of windows
 
                     self._short_for_loop(num_windows, window_size, pv_train, op_train, X_train, y_train)
 
                     #* Process Validation Data
-                    num_samples_valid = pv_valid.size
-                    num_windows_valid = num_samples_valid // window_size  # Number of windows
+                    num_samples_valid : int = pv_valid.size
+                    num_windows_valid : int = num_samples_valid // window_size  # Number of windows
 
                     self._short_for_loop(num_windows_valid, window_size, pv_valid, op_valid, X_valid, y_valid)
 
                 """training the model"""
-                X_train = np.array(X_train)
-                y_train = np.array(y_train)
+                X_train : np.ndarray = np.array(X_train)
+                y_train : np.ndarray = np.array(y_train)
                 # Partial suffle train and test data
                 X_train, y_train = partial_shuffle(X_train, y_train, 15)
                 # Train the SVR model on all the windows
