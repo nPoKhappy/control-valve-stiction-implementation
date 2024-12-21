@@ -68,7 +68,7 @@ for loop_name in loop_array:
         pv_window = aggregate_points(pv_window)
         op_window = aggregate_points(op_window)
         # Detect stiction and get r_value for this window
-        sigmoid = Sigmoid(co=op_window, pv=pv_window)
+        sigmoid = Sigmoid(op=op_window, pv=pv_window)
         _, r_value = sigmoid.detect_stiction()
         # Plot PV and OP 
         # plot_pv_sp_op(pv = sigmoid.pv_scale, sp = None, op = sigmoid.op_scale, loop_name = loop_name)

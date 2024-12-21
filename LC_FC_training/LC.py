@@ -92,7 +92,7 @@ days = 0
 
 for pv, co in zip(pv_split, co_split):
     days += 1
-    sigmoid = Sigmoid(co=co, pv=pv)
+    sigmoid = Sigmoid(op=co, pv=pv)
         # sigmoid.delta_pv_op_plot(name= loop_name)
 
     #Stiction detect

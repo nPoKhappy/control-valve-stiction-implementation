@@ -46,7 +46,7 @@ class Svr():
             pv_window = aggregate_points(pv_window)
             op_window = aggregate_points(op_window)
             # Detect stiction and get r_value for this window
-            sigmoid = Sigmoid(co=op_window, pv=pv_window)
+            sigmoid = Sigmoid(op=op_window, pv=pv_window)
             _, r_value = sigmoid.detect_stiction()
             
             # Compare windowed r_value with overall r_val (Kick outliers)
