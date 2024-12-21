@@ -12,11 +12,9 @@ def step_function(x):
                          lambda x: np.clip(0.15 * x + 0.7, 0, 1)])  # right side
 
 class Sigmoid():
-    def __init__(self, co: np.ndarray, pv: np.ndarray) -> None:
-        self.co = co
+    def __init__(self, op: np.ndarray, pv: np.ndarray) -> None:
+        self.op = op
         self.pv = pv
-        self.pv_scale = None
-        self.op_scale = None
 
     # Define the sigmoid function 
     def _sigmoid(self, x: np.ndarray, a: float, b: float) -> np.ndarray:
@@ -40,32 +38,14 @@ class Sigmoid():
         Pearson correlation coefficient
         pho_x_y = cov(x, y) / sigma_x * sigma_y
         """
-        if np.all(y == y[0]):
-            raise ValueError("Array 'y' is constant; correlation coefficient is not defined.")
         if np.all(y_fit == y_fit[0]):
-            print(f"y_fit : {y_fit}")
-            print(f"y : {y}")
-            raise ValueError("Array 'y_fit' is constant; correlation coefficient is not defined.")
+            print("Warning: 'y_fit' is constant; setting r_value to 0.")
+            return 0
         
         return pearsonr(y, y_fit)[0] # The first element from result is the statistic and the sec one is p_value
 
     # Main function for detecting stiction
     def detect_stiction(self, r_threshold=0.5) -> Union[bool, float]: 
-        # flatten array from 2d -> 1d
-        op = self.co
-        pv = self.pv
-        # First step：calculate ΔPV（first order difference backward of PV）
-        delta_pv = np.diff(pv, prepend=pv[0]) # Prepend to make sure the shape of diff_pv is the same as op
-                                            # Add pv[0] to let delta_pv first element become 0
-        mean_pv = np.mean(delta_pv)
-        std_pv = np.std(delta_pv)
-        pv_normalized = (delta_pv - mean_pv) / std_pv
-        # Make op to [0, 1]
-        op_range = np.max(op) - np.min(op)
-        op_norm = (op - np.min(op)) / op_range
-        # Assign to variable
-        self.pv_scale = pv_normalized
-        self.op_scale = op_norm
         # Second step：fit Sigmoid function to ΔPV and OP
         """
         xdata is the independent variable want to fit in
@@ -81,14 +61,14 @@ class Sigmoid():
         # Initial guess for the parameters [a, b]
         initial_guess = [1, 0]
         # Use least_squares to fit the sigmoid curve
-        result = least_squares(residuals, initial_guess, args=(pv_normalized, op_norm), method='trf')
+        result = least_squares(residuals, initial_guess, args=(self.pv, self.op), method='trf')
         # Extract fitted parameters
         a_fitted, b_fitted = result.x
         # print(f"para s_a : {s_a_fitted}, s_b : {s_b_fitted}, a : {a_fitted} and b : {b_fitted}\n")
         # Compute the fitted y values
-        y_fit = self._sigmoid(pv_normalized, a_fitted, b_fitted)
+        y_fit = self._sigmoid(self.pv, a_fitted, b_fitted)
         # Third step: calculate the correlation coefficient
-        r_value = self._calculate_correlation_coefficient(op_norm, y_fit)
+        r_value = self._calculate_correlation_coefficient(self.op, y_fit)
         # Round to dicimal 2
         r_value = round(r_value, 2)
         # If pearson coeff less than zero, it means negative relationship
