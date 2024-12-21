@@ -1,5 +1,10 @@
-"""fitting data to svr model"""
+import sys
+import os
+# Get the absolute path to the undergraduate_project directory
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.append(project_root)
 
+"""fitting data to svr model"""
 import numpy as np
 import pandas as pd
 from sklearn.svm import SVR
@@ -7,7 +12,6 @@ from sklearn.metrics import mean_squared_error
 from new_project.final.function_file import aggregate_points, train_test_split, partial_shuffle
 from new_project.thesis_2.sigmoid_class import Sigmoid
 import joblib
-import scipy.io
 import matplotlib.pyplot as plt
 
 np.random.seed(30)
@@ -34,27 +38,38 @@ class Svr():
     # Short for loop used in train_valid
     def _short_for_loop(self, num_windows: int, window_size: int, pv_train: np.ndarray, op_train: np.ndarray, 
                         X_train: list, y_train: list)-> None:
+        # First step：calculate ΔPV（first order difference backward of PV）
+        delta_pv = np.diff(pv_train, prepend = pv_train[0]) # Prepend to make sure the shape of diff_pv is the same as op
+                                            # Add pv[0] to let delta_pv first element become 0
+        mean_pv = np.mean(delta_pv)
+        std_pv = np.std(delta_pv)
+        pv_normalized = (delta_pv - mean_pv) / std_pv
+        # Make op to [0, 1]
+        op_range = np.max(op_train) - np.min(op_train)
+        op_norm = (op_train - np.min(op_train)) / op_range
         # Loop through the data to create windows of 60 samples
         for i in range(num_windows):
             # Extract a window of 60 samples from both PV and OP
-            pv_window = pv_train[i*window_size:(i+1)*window_size]
-            op_window = op_train[i*window_size:(i+1)*window_size]
+            pv_window = pv_normalized[i*window_size:(i+1)*window_size]
+            op_window = op_norm[i*window_size:(i+1)*window_size]
             # Every x steps take a sample to from a input data
             pv_window = aggregate_points(pv_window)
             op_window = aggregate_points(op_window)
             # If controller output didnt cahnge in the time window, we continue to next window
-            if (np.max(op_window) - np.min(op_window) == 0 or np.std(np.diff(pv_window, prepend=pv_window[0])) == 0): 
+            if (np.max(op_window) - np.min(op_window) == 0): 
                 continue
             # Detect stiction and get r_value for this window
-            sigmoid = Sigmoid(co=op_window, pv=pv_window)
+            sigmoid = Sigmoid(op = op_window, pv = pv_window)
             _, r_value = sigmoid.detect_stiction()
 
             # Concatenate PV and OP window into a single input vector of size 40
-            input_vector = np.concatenate((sigmoid.pv_scale, sigmoid.op_scale))  # (20, ) + (20, ) = (40, )
+            input_vector = np.concatenate((sigmoid.pv, sigmoid.op))  # (20, ) + (20, ) = (40, )
             
             # Store the input vector and target r_value
             X_train.append(input_vector)
             y_train.append(r_value)
+        # Record how many samples we fetch from this control loops 
+        print(f"Total {len(X_train)} samples we fetch from the {self.data_col_pv}")
 
     # Main algorithm
     def train_valid(self, store: bool, store_path : str)-> None:
@@ -80,6 +95,8 @@ class Svr():
                 for inner_list in self.data_col:
                     pv = self.df[inner_list[0]].to_numpy().flatten()  # Access first element
                     op = self.df[inner_list[1]].to_numpy().flatten()  # Access second element
+                    # In order to show which data col we use to take data from 
+                    self.data_col_pv = inner_list[0]
                     
                     pv_train, op_train, pv_valid, op_valid, _, _ = train_test_split(pv = pv, op = op, valid_size = 0.1, test_size = 0.2)
                     
@@ -120,6 +137,14 @@ class Svr():
                 # Append into list to compare the actual and pred r_val
                 self.y_valid_all.append(y_valid)
                 self.predictions_all_valid.append(predictions_valid)
+                # Show individual error
+                individual_errors_train : np.array = predictions - y_train
+                individual_errors_valid : np.array = predictions_valid - y_valid
+                # Get the indcies from the np.argsort and retrieve the most ten error and reverse the order
+                largest_few_element_train : np.array = np.argsort(individual_errors_train)[-10:][::-1]
+                largest_few_element_valid : np.array = np.argsort(individual_errors_valid)[-10:][::-1]
+                print(f"The largest errors to retrieve from train : {largest_few_element_train} and valid : {largest_few_element_valid}")              
+                
                 """append into list to plot the validation mse if needed"""
                 self.valid_mean_squared_error.append(round(mse_valid, 5))
                 self.epsilon_list.append(epsilon)
