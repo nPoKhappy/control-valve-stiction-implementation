@@ -26,6 +26,7 @@ class Svr():
         self.c_e = c_end
         self.epsilon_s = epsilon_start
         self.epsilon_e = epsilon_end
+        self.data_retrieve_from_each = []
     # when instance the class all the file would be loaded
     def _load_data(self, file_path : str):
         # Load data 
@@ -68,8 +69,7 @@ class Svr():
             # Store the input vector and target r_value
             X_train.append(input_vector)
             y_train.append(r_value)
-        # Record how many samples we fetch from this control loops 
-        print(f"Total {len(X_train)} samples we fetch from the {self.data_col_pv}")
+
 
     # Main algorithm
     def train_valid(self, store: bool, store_path : str)-> None:
