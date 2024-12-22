@@ -9,10 +9,10 @@ data_cols : list[list[str]] = [["FT_107", "FV_107.OUT"], ["FT_117", "FV_117.OUT"
 
 print(f"There are {len(data_cols)} control loop data.")
 
-svr  = Svr(file_name = file_path, 
+svr : Svr = Svr(file_name = file_path, 
           data_col = data_cols, 
-          c_start = 0.7, c_end = 0.75,
-          epsilon_start = 0.2, epsilon_end = 0.25)
+          c_start = 1, c_end = 1.05,
+          epsilon_start = 0.1, epsilon_end = 0.11)
 
 svr.train_valid(store = 1, store_path = "new_project/csv/final/svr_model/CVOP_20220201~0430.pkl")
 # svr.draw_validation_mse(show = 1)

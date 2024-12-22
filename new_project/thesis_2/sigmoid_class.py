@@ -82,34 +82,25 @@ class Sigmoid():
 
     def delta_pv_op_plot(self, name: str, filename: str) -> None:
         """delta pv v.s op plot"""
-        # flatten array from 2d -> 1d
-        op = self.co.flatten()
-        pv = self.pv.flatten() 
+        
 
-
-        op_norm = (op - np.min(op)) / (np.max(op) - np.min(op))
-        delta_pv = np.diff(pv, prepend=pv[0])
-
-        mean_pv = np.mean(delta_pv)
-        std_pv = np.std(delta_pv)
-        pv_normalized = (delta_pv - mean_pv) / std_pv
         
         
-        # Create a range of x values
-        x = np.linspace(-4, 4, 400)
-        # Plot the step function with slopes adjusted
-        y = step_function(x)
+        # # Create a range of x values
+        # x = np.linspace(-4, 4, 400)
+        # # Plot the step function with slopes adjusted
+        # y = step_function(x)
 
 
         plt.figure(dpi=150)
-        plt.plot(x, y, label='Adjusted Step Function', color='black')
-        plt.scatter(pv_normalized, op_norm, s=7)
+        # plt.plot(x, y, label='Adjusted Step Function', color='black')
+        plt.scatter(self.pv, self.op, s=7)
         plt.title(f"$Chemical$ $loop{name}$")
         plt.xlabel(r"$\Delta PV(k)$")
         plt.ylabel(r"$CO(k)$")
-        # plt.show()
+        plt.show()
 
         # Save the plot as an image file (PNG)
-        plt.savefig(filename)
+        # plt.savefig(filename)
         # plt.close()  # Close the plot to avoid memory issues
 

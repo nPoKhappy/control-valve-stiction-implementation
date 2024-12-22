@@ -37,25 +37,33 @@ class Svr():
     # Short for loop used in train_valid
     def _short_for_loop(self, num_windows: int, window_size: int, pv_train: np.ndarray, op_train: np.ndarray, 
                         overall_r_val: np.float64, X_train: list, y_train: list)-> None:
+        # First step：calculate ΔPV（first order difference backward of PV）
+        delta_pv : np.ndarray = np.diff(pv_train, prepend = pv_train[0]) # Prepend to make sure the shape of diff_pv is the same as op
+                                            # Add pv[0] to let delta_pv first element become 0
+        mean_pv : float= np.mean(delta_pv)
+        std_pv : float = np.std(delta_pv)
+        pv_normalized : np.ndarray = (delta_pv - mean_pv) / std_pv
+        # Make op to [0, 1]
+        op_range : float = np.max(op_train) - np.min(op_train)
+        op_norm : np.ndarray = (op_train - np.min(op_train)) / op_range
         # Loop through the data to create windows of 60 samples
         for i in range(num_windows):
             # Extract a window of 60 samples from both PV and OP
-            pv_window = pv_train[i*window_size:(i+1)*window_size]
-            op_window = op_train[i*window_size:(i+1)*window_size]
+            pv_window = pv_normalized[i*window_size:(i+1)*window_size]
+            op_window = op_norm[i*window_size:(i+1)*window_size]
             # Every x steps take a sample to from a input data
             pv_window = aggregate_points(pv_window)
             op_window = aggregate_points(op_window)
             # Detect stiction and get r_value for this window
             sigmoid = Sigmoid(op=op_window, pv=pv_window)
             _, r_value = sigmoid.detect_stiction()
-            
             # Compare windowed r_value with overall r_val (Kick outliers)
             diff_r_val = overall_r_val - r_value
             if abs(diff_r_val) >= 0.5:
                 continue # Continue to next window if difference is too large
 
             # Concatenate PV and OP window into a single input vector of size 40
-            input_vector = np.concatenate((sigmoid.pv_scale, sigmoid.op_scale))  # (20, ) + (20, ) = (40, )
+            input_vector = np.concatenate((sigmoid.pv, sigmoid.op))  # (20, ) + (20, ) = (40, )
             
             # Store the input vector and target r_value
             X_train.append(input_vector)

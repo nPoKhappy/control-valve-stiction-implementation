@@ -26,7 +26,6 @@ class Svr():
         self.c_e : float= c_end
         self.epsilon_s : float= epsilon_start
         self.epsilon_e : float = epsilon_end
-        self.data_retrieve_from_each : list = []
     # when instance the class all the file would be loaded
     def _load_data(self, file_path : str) -> pd.DataFrame:
         # Load data 
@@ -53,16 +52,17 @@ class Svr():
             # Extract a window of 60 samples from both PV and OP
             pv_window : np.ndarray = pv_normalized[i*window_size:(i+1)*window_size]
             op_window : np.ndarray = op_norm[i*window_size:(i+1)*window_size]
-            # Every x steps take a sample to from a input data
-            pv_window : np.ndarray = aggregate_points(pv_window)
-            op_window : np.ndarray = aggregate_points(op_window)
+            # # Every x steps take a sample to from a input data
+            # pv_window : np.ndarray = aggregate_points(pv_window)
+            # op_window : np.ndarray = aggregate_points(op_window)
             # If controller output didnt cahnge in the time window, we continue to next window
             if (np.max(op_window) - np.min(op_window) == 0): 
                 continue
             # Detect stiction and get r_value for this window
             sigmoid : Sigmoid = Sigmoid(op = op_window, pv = pv_window)
             _, r_value = sigmoid.detect_stiction()
-
+            print(f"r_value : {r_value}.")
+            # sigmoid.delta_pv_op_plot("1", "None")
             # Concatenate PV and OP window into a single input vector of size 40
             input_vector  : np.ndarray = np.concatenate((sigmoid.pv, sigmoid.op))  # (20, ) + (20, ) = (40, )
             
