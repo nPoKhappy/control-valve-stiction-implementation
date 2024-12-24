@@ -1,3 +1,4 @@
+"""train model"""
 from new_project.final.svr_class_new import Svr
 
 file_path : str = "new_project/CVOP_20220201~0430.xlsx" # The excel file name

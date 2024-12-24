@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 from sklearn.svm import SVR
 from sklearn.metrics import mean_squared_error
-from new_project.final.function_file import aggregate_points, train_test_split, partial_shuffle
+from new_project.final.function_file import  train_test_split, partial_shuffle
 from new_project.thesis_2.sigmoid_class import Sigmoid
 import joblib
 import time
