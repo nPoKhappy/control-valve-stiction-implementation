@@ -12,6 +12,7 @@ from sklearn.metrics import mean_squared_error
 from new_project.final.function_file import aggregate_points, train_test_split, partial_shuffle
 from new_project.thesis_2.sigmoid_class import Sigmoid
 import joblib
+import time
 import matplotlib.pyplot as plt
 
 np.random.seed(30)
@@ -49,6 +50,8 @@ class Svr():
         op_norm : np.ndarray = (op_train - np.min(op_train)) / op_range
         # Loop through the data to create windows of 60 samples
         for i in range(num_windows):
+            # Pause for 1 sec
+            time.sleep(1)
             # Extract a window of 60 samples from both PV and OP
             pv_window : np.ndarray = pv_normalized[i*window_size:(i+1)*window_size]
             op_window : np.ndarray = op_norm[i*window_size:(i+1)*window_size]
