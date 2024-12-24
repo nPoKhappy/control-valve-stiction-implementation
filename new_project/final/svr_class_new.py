@@ -50,8 +50,6 @@ class Svr():
         op_norm : np.ndarray = (op_train - np.min(op_train)) / op_range
         # Loop through the data to create windows of 60 samples
         for i in range(num_windows):
-            # Pause for 1 sec
-            time.sleep(1)
             # Extract a window of 60 samples from both PV and OP
             pv_window : np.ndarray = pv_normalized[i*window_size:(i+1)*window_size]
             op_window : np.ndarray = op_norm[i*window_size:(i+1)*window_size]
@@ -59,8 +57,9 @@ class Svr():
             # pv_window : np.ndarray = aggregate_points(pv_window)
             # op_window : np.ndarray = aggregate_points(op_window)
             # If controller output didnt cahnge in the time window, we continue to next window
-            if (np.max(op_window) - np.min(op_window) == 0): 
-                continue
+            if (np.max(op_window) - np.min(op_window) == 0): # If the controller output didnt change wihtin the period window
+                continue                                       # the pearson correlation coeffcient wont work since the denomitor 
+                                                                # is standard deviation and its value will be zero 
             # Detect stiction and get r_value for this window
             sigmoid : Sigmoid = Sigmoid(op = op_window, pv = pv_window)
             _, r_value = sigmoid.detect_stiction()
