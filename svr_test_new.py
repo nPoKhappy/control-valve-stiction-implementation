@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error # Used to evaluate model
-from new_project.final.function_file import aggregate_points, train_test_split
+from new_project.final.function_file import train_test_split
 from new_project.thesis_2.sigmoid_class import Sigmoid
 import joblib # Used to load model 
 import matplotlib.pyplot as plt
