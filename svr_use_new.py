@@ -1,20 +1,28 @@
 """train model"""
 from new_project.final.svr_class_new import Svr
 
-file_path : str = "new_project/CVOP_20220201~0430.xlsx" # The excel file name
+file_name = "CVOP_20221001~1231.xlsx" # The excel file name
+
+c_start, c_end, epsilon_start, epsilon_end = (1, 1.05, 0.1, 0.11)
 
 # list inside with list inside with str ["PV", "CO"]
 # Each one has 128160 samples
-data_cols : list[list[str]] = [["FT_107", "FV_107.OUT"], ["FT_117", "FV_117.OUT"], ["FT_174", "FV_174.OUT"], ["FT_181", "FV_181.OUT"],
-             ["FT_2004", "FV_2004.OUT"], ["FT_306", "FV_306.OUT"], ["FT_308", "FV_308.OUT"]] # 
+# data_cols : list[list[str]] = [["FT_107", "FV_107.OUT"], ["FT_117", "FV_117.OUT"], ["FT_174", "FV_174.OUT"], ["FT_181", "FV_181.OUT"],
+#              ["FT_2004", "FV_2004.OUT"], ["FT_306", "FV_306.OUT"], ["FT_308", "FV_308.OUT"]] # 
+data_cols : list[list[str]] = [["LT_201", "LV_201.OUT"], ["PT_269", "PV_269.OUT"], ["PT_278", "PV_269.OUT"], ["PT_278", "PV_278.OUT"], 
+             ["PT_303", "PV_303.OUT"], ["PT_305", "PV_305.OUT"], ["PT_306", "PV_306.OUT"]]
+
+
 
 print(f"There are {len(data_cols)} control loop data.")
 
+
+file_path : str = f"new_project/{file_name}"
 svr : Svr = Svr(file_name = file_path, 
           data_col = data_cols, 
-          c_start = 1, c_end = 1.05,
-          epsilon_start = 0.1, epsilon_end = 0.11)
+          c_start = c_start, c_end = c_end,
+          epsilon_start = epsilon_start, epsilon_end = epsilon_end)
 
-svr.train_valid(store = 1, store_path = "new_project/csv/final/svr_model/CVOP_20220201~0430.pkl")
+svr.train_valid(store = 1, store_path = f"new_project/csv/final/svr_model/{file_name}.pkl")
 # svr.draw_validation_mse(show = 1)
-svr.draw_r_val()
+svr.draw_r_val(file_name = file_name)
