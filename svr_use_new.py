@@ -1,18 +1,21 @@
 """train model"""
 from new_project.final.svr_class_new import Svr
 
-file_name = "CVOP_20221001~1231.xlsx" # The excel file name
+file_name = "CVOP_20241001~1209.xlsx" # The excel file name
 
 c_start, c_end, epsilon_start, epsilon_end = (1, 1.05, 0.1, 0.11)
 
 # list inside with list inside with str ["PV", "CO"]
 # Each one has 128160 samples
-# data_cols : list[list[str]] = [["FT_107", "FV_107.OUT"], ["FT_117", "FV_117.OUT"], ["FT_174", "FV_174.OUT"], ["FT_181", "FV_181.OUT"],
-#              ["FT_2004", "FV_2004.OUT"], ["FT_306", "FV_306.OUT"], ["FT_308", "FV_308.OUT"]] # 
-data_cols : list[list[str]] = [["LT_201", "LV_201.OUT"], ["PT_269", "PV_269.OUT"], ["PT_278", "PV_269.OUT"], ["PT_278", "PV_278.OUT"], 
-             ["PT_303", "PV_303.OUT"], ["PT_305", "PV_305.OUT"], ["PT_306", "PV_306.OUT"]]
-
-
+data_cols : list[tuple[str]] = [
+    ("FT_107", "FV_107.OUT"), 
+    ("FT_117", "FV_117.OUT"), 
+    ("FT_174", "FV_174.OUT"), 
+    ("FT_181", "FV_181.OUT"), 
+    ("FT_2004", "FV_2004.OUT"), 
+    ("FT_306", "FV_306.OUT"), 
+    ("FT_308", "FV_308.OUT")
+]
 
 print(f"There are {len(data_cols)} control loop data.")
 

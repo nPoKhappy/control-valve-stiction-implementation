@@ -12,14 +12,13 @@ from sklearn.metrics import mean_squared_error
 from new_project.final.function_file import  train_test_split, partial_shuffle
 from new_project.thesis_2.sigmoid_class import Sigmoid
 import joblib
-import time
 import matplotlib.pyplot as plt
 
 np.random.seed(30)
 
 
 class Svr():
-    def __init__(self, file_name : str, data_col : list[list[str]], c_start: float, c_end: float, 
+    def __init__(self, file_name : str, data_col : list[tuple[str]], c_start: float, c_end: float, 
                  epsilon_start: float, epsilon_end: float) -> None:
         self.data_col : np.ndarray = np.array(data_col)
         self.df : pd.DataFrame= self._load_data(file_name)
@@ -94,11 +93,11 @@ class Svr():
                 X_valid, y_valid = [], []
                 # Loop each control loop
                 # pv_col is the column where the PV at and co_col is the column where the CO at 
-                for inner_list in self.data_col:
-                    pv : np.ndarray = self.df[inner_list[0]].to_numpy().flatten()  # Access first element
-                    op : np.ndarray = self.df[inner_list[1]].to_numpy().flatten()  # Access second element
+                for inner_tuple in self.data_col:
+                    pv : np.ndarray = self.df[inner_tuple[0]].to_numpy().flatten()  # Access first element
+                    op : np.ndarray = self.df[inner_tuple[1]].to_numpy().flatten()  # Access second element
                     # In order to show which data col we use to take data from 
-                    self.data_col_pv : str = inner_list[0]
+                    self.data_col_pv : str = inner_tuple[0]
                     
                     pv_train, op_train, pv_valid, op_valid, _, _ = train_test_split(pv = pv, op = op, valid_size = 0.1, test_size = 0.2)
                     

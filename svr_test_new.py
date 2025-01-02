@@ -9,25 +9,31 @@ import joblib # Used to load model
 import matplotlib.pyplot as plt
 
 
+file_name = "CVOP_20241001~1209.xlsx"
 
 # Load the model using pickle
-model_path : str = "new_project/csv/final/svr_model/CVOP_20220201~0430.pkl"
+model_path : str = f"new_project/csv/final/svr_model/{file_name}.pkl"
 svr_model = joblib.load(model_path)
 
-file_path : str = "new_project/CVOP_20220201~0430.xlsx"
+file_path : str = f"new_project/{file_name}"
 df : pd.DataFrame = pd.read_excel(file_path, header = 1, engine="openpyxl")
 
-
-data_cols : list[list[str]] = [["FT_107", "FV_107.OUT"], ["FT_117", "FV_117.OUT"], ["FT_174", "FV_174.OUT"], ["FT_181", "FV_181.OUT"],
-             ["FT_2004", "FV_2004.OUT"], ["FT_306", "FV_306.OUT"], ["FT_308", "FV_308.OUT"]] # 
-
+data_cols : list[tuple[str]] = [
+    ("FT_107", "FV_107.OUT"), 
+    ("FT_117", "FV_117.OUT"), 
+    ("FT_174", "FV_174.OUT"), 
+    ("FT_181", "FV_181.OUT"), 
+    ("FT_2004", "FV_2004.OUT"), 
+    ("FT_306", "FV_306.OUT"), 
+    ("FT_308", "FV_308.OUT")
+]
 # Initialize arrays to store the input vectors and target values
 X_train = []
 y_train = []
 
-for inner_list in data_cols:
-    pv : np.ndarray = df[inner_list[0]].to_numpy().flatten()  # Access first element
-    op : np.ndarray = df[inner_list[1]].to_numpy().flatten()  # Access second element
+for inner_tuple in data_cols:
+    pv : np.ndarray = df[inner_tuple[0]].to_numpy().flatten()  # Access first element
+    op : np.ndarray = df[inner_tuple[1]].to_numpy().flatten()  # Access second element
     _, _, _, _, pv_test, op_test = train_test_split(pv, op, 0.1, 0.2)
     # Parameters
     window_size : int = 60  # Size of each window
@@ -82,7 +88,7 @@ plt.plot(range(len(predictions)), predictions, label="predictions")
 plt.plot(range(len(y_train)), y_train, label="actual")
 
 plt.legend()
-plt.title("test model")
+plt.title(file_name)
 plt.xlabel("$windows$")
 plt.ylabel("$R value$")
 plt.show()
