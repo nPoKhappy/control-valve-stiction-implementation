@@ -195,7 +195,7 @@ class Svr():
         ax.set_title("3D Plot of MSE varying with C and Epsilon")
         plt.show()
         
-    def draw_r_val(self):
+    def draw_r_val(self, file_name : str):
         """
         Draw train and valid actual r_val and pred r_val
         """
@@ -226,4 +226,4 @@ class Svr():
         plt.legend()
         # plt.show()
         # Save fig for create gif
-        plt.savefig(f"c_{self.c_s}_and_epsilon_{self.epsilon_s}.png")
+        plt.savefig(f"{file_name}.png")
