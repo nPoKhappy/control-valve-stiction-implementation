@@ -1,34 +1,14 @@
-import numpy as np
-import matplotlib.pyplot as plt
+"""Compatibility entry point; see run.py --help for the shared workflow."""
+from pathlib import Path
+import sys
+if __package__ in {None, ""}:
+    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
+from stiction.plots import signal_plot
+def stiction_signal_plot(pv, S_expand, process_name="", filename=None, show=False):
+    return signal_plot(pv, S_expand, process_name, filename, show)
 
+from stiction.cli import main
 
-
-def stiction_signal_plot(pv: np.ndarray, S_expand: np.ndarray, process_name: str) -> None:
-    """
-    Show the stiction signal on the process variable plot.
-    Parameter:
-    pv: process varibale data.
-    S_expand: stiction signal size where match the process variable.
-    Return:
-    None.
-    """
-    # Plotting the Process Variable (PV)
-    fig, ax1 = plt.subplots()
-
-    # PV
-    ax1.plot(range(pv.size), pv, label='Process variable')
-    ax1.set_xlabel('Samples')
-    ax1.set_ylabel('Process variable', color='b')
-    ax1.tick_params(axis='y', labelcolor='b')
-
-    # Plotting the Stiction Signal (S)
-    ax2 = ax1.twinx()
-    ax2.plot(range(S_expand.shape[0]), S_expand, 'r-', label='Stiction signal')
-    ax2.set_ylabel('Stiction signal', color='r')
-    ax2.tick_params(axis='y', labelcolor='r')
-
-    # Adding title and formatting
-    plt.title(f'Stiction detection via each Method in {process_name}')
-    fig.tight_layout()  # Adjust layout to prevent clipping
-    plt.show()
+if __name__ == "__main__":
+    raise SystemExit(main(['detect', '--source', 'mat'] + sys.argv[1:]))

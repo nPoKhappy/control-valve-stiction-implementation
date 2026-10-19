@@ -1,20 +1,17 @@
-[tool.poetry]
-name = "undergraduate_project"
-version = "1.0.0"
-description = ""
-authors = ["Your Name <jj612121@gmail.com>"]
-readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.11.9"
-numpy = "1.26.4"
-scikit-learn = "^1.2.2"
-matplotlib = "3.8.0"
-pillow = "^11.0.0"
-pandas = "^2.2.3"
-openpyxl = "^3.1.5"
-
-
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "control-valve-stiction-implementation"
+version = "2.0.0"
+description = "Non-invasive control valve stiction experiments and SVR reference approximation"
+readme = "README.md"
+requires-python = ">=3.11,<3.13"
+dependencies = [
+    "numpy==1.26.4", "scipy==1.13.1", "scikit-learn==1.5.2", "pandas==2.2.3",
+    "matplotlib==3.9.2", "openpyxl==3.1.5", "Pillow==11.0.0", "joblib==1.4.2",
+]
+
+[tool.setuptools.packages.find]
+include = ["stiction*"]
